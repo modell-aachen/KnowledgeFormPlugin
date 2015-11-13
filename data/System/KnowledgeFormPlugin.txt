@@ -1,0 +1,104 @@
+%META:TOPICPARENT{name="Plugins"}%
+---+ Knowledge Form Plugin
+
+%SHORTDESCRIPTION%
+
+%TOC%
+
+---++ Usage
+
+This plugin provides a formfield type called =knowledge= and also =knowldege+multi=.
+
+Put the =%%NOP%KNOWLEDGECLOUD%= macro into your edit-template.
+
+If you are creating a search page, use =%%NOP%RENDERFOREDIT{form="YourForm" field="YourField" value="$select2"}%= + =%%NOP%KNOWLEDGECLOUD%= in your view-template. To create the search, use =%%NOP%SOLRSEARCH{"%%NOP%KNOWLEDGESOLR% whateverelseyousearchfor..." ...}%=.
+
+---+++ Example
+
+---++++ !KnowledgeForm
+<verbatim>
+| *Name* | *Type* | *Size* | *Values* | *Tooltip message* | *Attributes* |
+| TopicTitle | text | 50 | | %MAKETEXT{"Please specify a distinct topic title"}% | M |
+| Creator | knowledge | 50 | | %MAKETEXT{"Creator"}% | |
+| Customer | knowledge | 50 |  | %MAKETEXT{"Customer"}% | |
+| ManufacturingProcess | knowledge+multi | 50 |  | %MAKETEXT{"Manufacturing process"}% | |
+| Construction | knowledge+multi | 50 |  | %MAKETEXT{"Construction"}% | |
+</verbatim>
+
+---++++ !KnowledgeEditTemplate
+<verbatim>
+%TMPL:INCLUDE{"edit"}%
+
+%TMPL:DEF{"formbottom"}%<table><tbody>
+<tr><td>%TMPL:PREV%</td><td>%KNOWLEDGECLOUD%</td></tr>
+</tbody></table>%TMPL:END%
+</verbatim>
+
+---++++ !KnowledgeSearchViewTemplate
+<verbatim class="tml">
+%TMPL:DEF{"content"}%<!-- content -->
+<div class="widgetBlockTitle">%MAKETEXT{"Search"}%</div>
+<div class="widgetBlockContent">
+<form action="%SCRIPTURL{view}%/%BASEWEB%/%BASETOPIC%">
+<!-- the first td of this table will be the input elements, the second will be the tagcloud --><table><tbody><tr>
+<td><table>
+<tr><td>%MAKETEXT{"Creator"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="Creator" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Customer"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="Customer" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Manufacturing process"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="ManufacturingProcess" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Construction"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="Construction" format="$select2"}%</td></tr>
+<tr><td columnspan="2">%BUTTON{"%MAKETEXT{"Search!"}%" type="submit"}%</td></tr>
+</table></td>
+<td><div class="facetView" style="min-width: 300px;">
+%KNOWLEDGECLOUD{form="%WEB%.KnowledgeManagementForm"}%
+</div></td>
+</tr></tbody></table>
+<input type="hidden" name="doSearch" value="1" />
+</form>
+%IF{"$'URLPARAM{doSearch}'" then="$percentTMPL:P{ResultTable}$percent"}% 
+</div>
+<!-- /content -->%TMPL:END%
+
+%TMPL:DEF{"ResultTable"}%%SOLRSEARCH{"web:%WEB% type:topic form:(%WEB%.KnowledgeManagementForm OR KnowledgeManagementForm) %FORMATLIST{
+ "%URLPARAM{"q" encode="save"}%"
+ separator=" AND "
+ header="catchall:("
+ footer=")"
+}% %KNOWLEDGESOLR{form="%WEB%.KnowledgeManagementForm"}%"
+format="<tr><td>[[$web.$topic]]</td></tr>"
+header="<table class='tablesorter'><thead><tr><th>%MAKETEXT{"Topic"}%</th></tr></thead><tbody>"
+footer="</tbody></table>"
+}%%TMPL:END%
+</verbatim>
+%X% If your form is in a different web, you will need to replace the =data-web= attribute:
+<verbatim>
+%SUBST{text="%RENDERFORDISPLAY{form="SomeWeb.KnowledgeManagementForm" field="Creator" format="$select2"}%" pattern="data-web='SomeWeb'" format="data-web='%WEB%'"}%
+</verbatim>
+
+---++ Macros
+
+---+++ =%%NOP%KNOWLEDGECLOUD%=
+
+This will render a cloud, which will react to changes done in your knowledge formfields (provided they are rendered in edit mode, or as =$select2=).
+
+---+++ =%%NOP%KNOWLEDGESOLR%=
+
+This will provide a search string for solr, reflecting your =$select2= and urlparams.
+
+<!--
+One line description, required for extensions repository catalog.
+   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
+-->
+
+---++ Installation
+%$INSTALL_INSTRUCTIONS%
+
+---++ Plugin Info
+
+|  Author: | Modell Aachen GmbH |
+|  Copyright: | &copy; 2015, Modell Aachen GmbH |
+|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
+|  Release: | %$RELEASE% |
+|  Version: | %$VERSION% |
+|  Home: | http://modell-aachen.de |
+|  Support: | http://modell-aachen.de |
+

@@ -1,0 +1,9 @@
+div.tagCloud span {
+    white-space:nowrap;
+    text-decoration:none;
+    line-height:105%;
+    background-color: rgb(240,240,255);
+}
+span.item.selected{
+    background-color:#AAA;
+}
