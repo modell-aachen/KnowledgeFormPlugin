@@ -1,0 +1,4 @@
+# ---+ Extensions
+# ---++ KnowledgeFormPlugin
+
+1;

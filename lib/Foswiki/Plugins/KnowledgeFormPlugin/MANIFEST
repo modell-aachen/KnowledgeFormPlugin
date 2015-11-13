@@ -1,0 +1,8 @@
+data/System/KnowledgeFormPlugin.txt
+data/System/VarKNOWLEDGECLOUD.txt
+data/System/VarKNOWLEDGESOLR.txt
+lib/Foswiki/Form/Knowledge.pm
+lib/Foswiki/Plugins/KnowledgeFormPlugin.pm
+lib/Foswiki/Plugins/KnowledgeFormPlugin/Config.spec
+pub/System/KnowledgeFormPlugin/Knowledge.css
+pub/System/KnowledgeFormPlugin/Knowledge.js
