@@ -102,7 +102,6 @@ sub _processForm {
     $clouds = '' if defined $clouds;
 
     my $query = Foswiki::Func::getRequestObject();
-    my $multiParam = $query->multi_param();
 
     my $formFields = $formDef->getFields() || ();
     foreach my $field ( @$formFields ) {
