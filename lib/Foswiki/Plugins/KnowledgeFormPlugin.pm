@@ -212,6 +212,8 @@ sub _KNOWLEDGECLOUD {
 
     my ($clouds, $searchString, $solrFields) = _processForm($session, $formWeb, $formName, 1);
 
+    $searchString = '' if $attributes->{donotfilter};
+
     my $search = <<SEARCH;
 \%SOLRSEARCH{
     "web:$targetWeb $searchString"
