@@ -38,12 +38,11 @@ jQuery(function($){
             $container = $('div.select2-dropdown-open:first');
         }
 
-        $('div.MetaFacets_Facets>div').hide();
-        if(!$container) return;
+        $('.facetView>div.lrFacets>div').hide();
+        if(!$container.length) return;
         var targetName = $container.next().attr('name');
 
         if(!targetName) return;
-        $('.facetView>div.lrFacets>div').hide();
         var $facetDiv = $('.facetView>div.lrFacets>div.lrFacet_'+targetName);
         showCloud($facetDiv);
         return true;
@@ -214,7 +213,7 @@ jQuery(function($){
     };
     var change = function(ev, ui){
         var $this = $(this);
-        if($this.hasClass('doNotFilter')) {
+        if($this.closest('form').find('.doNotFilter').length) {
             $('.lrFacets span.item.selected').removeClass('selected');
             markTagCloud($('.lrFacets .lrFacet_' + $this.attr('name')));
         } else {
@@ -255,12 +254,49 @@ jQuery(function($){
             $this.attr('id', id);
         }
         var field = 'field_' + $this.attr('name') + ($this.hasClass('lst')?'_lst':'_s');
-        var search = $this.hasClass('search')?('field_' + $this.attr('name') + ($this.hasClass('lst')?'_lst_msearch_parts':'_search')):field;
+        var search = $this.hasClass('search')?('field_' + $this.attr('name') + ($this.hasClass('lst')?'_lst_msearch':'_search')):field;
         var formtopic = $this.attr('data-form');
         var targetweb = $this.attr('data-web');
         $this.select2(createSelect2Object($this, field, search, formtopic, targetweb)).on('change', change).addClass('autoclose').attr('inputid', id);
     });
     $("input.select2-input:not(.MetaFacetBound)").livequery(function(){$(this).addClass('MetaFacetBound').focus(focus)});
+    $("input[name='q']").focus(focus).each(function(){
+        var $input = $(this);
+        var formtopic = $input.attr('data-form');
+        var targetweb = $input.attr('data-web');
+        $input.autocomplete({
+            source: function(query, callback) {
+                var savedTerm = query.term;
+                var options = {
+                    addNew: false,
+                    formtopic: formtopic,
+                    searchin: 'catchall',
+                    term: query.term.toLowerCase(), // XXX why does lowercasing in analyser not work!?!
+                    termOrig: query.term,
+                    field: 'catchall',
+                    targetweb: targetweb
+                };
+
+                var $form = $input.closest('form');
+                $form.find('input').each(function() { // XXX do proper serialize
+                    var $this = $(this);
+                    var val = $this.val();
+                    var name = $this.attr('name');
+                    if(val && name) {
+                        options[name] = val;
+                    }
+                });
+                $.ajax({
+                    url: autocomplete,
+                    dataType: 'json',
+                    data: options,
+                    complete: function(jqXHR, textStatus) {
+                        callback(jqXHR.responseJSON);
+                    }
+                });
+            }
+        });
+    }).change(change);
 });
 
 

@@ -47,15 +47,21 @@ sub _restAutocomplete {
 
     my $web = $query->param('targetweb') || $formWeb;
 
-    my ($clouds, $searchString, $solrFields) = _processForm($session, $formWeb, $formName);
-
     my $searchIn = $query->param('searchin') || 'dummy';
     my $terms = $query->param('term') || '.?';
-    $terms = join(' AND ', map{ "*$_" } split(m#\s+#, $terms));
-    $searchString .= " $searchIn:($terms)";
+    $terms = join(' AND ', map{ "*$_*" } split(m#\s+#, $terms));
+    my $searchTerm = "$searchIn:($terms)";
+
+    my ($clouds, $searchString, $solrFields) = _processForm($session, $formWeb, $formName, undef);
+    $searchString .= " $searchTerm";
 
     my $field = $query->param('field') || 'title';
     my $limit = $query->param('limit') || 10;
+
+    my $prefix = '';
+    if($query->param('searchin') eq 'catchall') {
+        $prefix = 'facetprefix="' . $query->param('term') .'"';
+    }
 
     my $search = <<SEARCH;
 \%SOLRSEARCH{
@@ -68,6 +74,7 @@ sub _restAutocomplete {
     facets="$field"
     format_$field="\$key"
     facetlimit="$limit"
+    $prefix
 }\%
 SEARCH
 
@@ -102,8 +109,8 @@ sub _processForm {
     $clouds = '' if defined $clouds;
 
     my $query = Foswiki::Func::getRequestObject();
-
     my $formFields = $formDef->getFields() || ();
+    my $fieldSearch = '';
     foreach my $field ( @$formFields ) {
         next unless $field->{type} && ($field->{type} eq 'knowledge' || $field->{type} eq 'knowledge+multi' );
         my $solrType = ( $field->isMultiValued() ? 'lst' : 's' );
@@ -137,10 +144,23 @@ CLOUD
                 $values .= $eachValues;
             }
         }
-        $searchString .= " $solrFieldName:($values)" if $values;
+        $fieldSearch .= " $solrFieldName:($values)" if $values;
 
         push(@solrFields, $solrFieldName);
     }
+
+    $searchString .= "($fieldSearch)" if $fieldSearch;
+
+    my @param = $query->multi_param('q');
+    my $values = '';
+    foreach my $eachParam ( @param ) {
+        my $eachValues = join(' AND ', map{ $_ =~ s#"#\\\\\"#g; "*$_*" } grep{ $_ =~ m#\S# } split(m#\s*,\s*#, $eachParam ));
+        if($eachValues) {
+            $values .= ' AND ' if $values;
+            $values .= $eachValues;
+        }
+    }
+    $searchString .= " catchall:($values)" if $values;
 
     return ($clouds, $searchString, join(',', @solrFields));
 }
