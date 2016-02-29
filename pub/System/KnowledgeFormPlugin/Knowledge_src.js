@@ -2,45 +2,18 @@ jQuery(function($){
     var tagcloud = foswiki.getPreference("SCRIPTURLPATH") + '/rest' + foswiki.getPreference("SCRIPTSUFFIX") + '/KnowledgeFormPlugin/tagcloud';
     var autocomplete = foswiki.getPreference("SCRIPTURLPATH") + '/rest' + foswiki.getPreference("SCRIPTSUFFIX") + '/KnowledgeFormPlugin/autocomplete';
 
-    // workaround for select2 not losing focus
-    var focusLoose=function(ev){
-        if(!ev) return;
-        var target=ev.target;
-        if(!target) return;
-        var targetName=ev.target.name;
-        if(!targetName) {
-            var $target = $(target);
-            if(!$target.hasClass('select2-input')) return;
-            var $next = $target.closest('.select2-container').next();
-            targetName = $next.attr('name');
-            if(!targetName) return;
-
-            // workaround for select2 not losing focus
-            $('input.MetaFacet_select2:not([name="' + targetName + '"])').select2('close');
-        }
+    // hides open clouds
+    var closed = function(ev){
+        $('.facetView>div.lrFacets>div').hide();
         return true;
     };
-    var focus = function(ev) {focusLoose(ev);focusCloud(ev);}
-    // XXX hide cloud when switching to non-select2
-    var focusCloud = function(ev){
-        var $focused = $(this);
 
-        var $container; // XXX seems there is no function to get to the select2?
-        var target = $(ev.target).closest("div.select2-container").get(0);
-        if (target) {
-            $container = $(target);
-        } else {
-            $(document).find("div.select2-container-active").each(function () {
-                if ($(this).data('select2').isFocused()) $container = $(this);
-            });
-        }
-        if(!$container) {
-            $container = $('div.select2-dropdown-open:first');
-        }
+    // shows the correct cloud
+    var focus = function(ev){
+        var $this = $(this);
 
         $('.facetView>div.lrFacets>div').hide();
-        if(!$container.length) return;
-        var targetName = $container.next().attr('name');
+        var targetName = $this.attr('name');
 
         if(!targetName) return;
         var $facetDiv = $('.facetView>div.lrFacets>div.lrFacet_'+targetName);
@@ -85,22 +58,12 @@ jQuery(function($){
             resp(filterData(data, undefined, o.addNew), stat, jqXHR);
         });
     };
-    var initSelectionMultiple = function(element, callback) {
-        var data = [];
-        $(element.val().split(',')).each(function() {
-            data.push({id: this, text: this});
-        });
-        callback(data);
-    };
-    var initSelectionSingle = function(element, callback) {
-        var data = {id: element.val(), text: element.val()};
-        callback(data);
-    };
-    var createSelect2Object = function($input, field, searchfield, formtopic, targetweb) {
+    var createSelect2Object = function($select, field, searchfield, formtopic, targetweb) {
         var savedTerm;
-        var addNew = $input.hasClass('addNew');
-        var multiple = $input.hasClass('lst');
-        var createOptionsSelect2 = function(term, page) {
+        var addNew = $select.hasClass('addNew');
+        var multiple = $select.hasClass('lst');
+        var createOptionsSelect2 = function(params) {
+            var term = params.term || '';
             savedTerm = term;
             var options = {
                 addNew: addNew,
@@ -112,20 +75,15 @@ jQuery(function($){
                 targetweb: targetweb
             };
 
-            if(!$input.hasClass('doNotFilter')) {
-                var $form = $input.closest('form');
-                $form.find('input').each(function() { // XXX do proper serialize
-                    var $this = $(this);
-                    var val = $this.val();
-                    var name = $this.attr('name');
-                    if(val && name) {
-                        options[name] = val;
-                    }
-                });
+            if(!$select.hasClass('doNotFilter')) {
+                var $form = $select.closest('form');
+                extendOptions(options, $form);
             }
 
             return options;
         };
+        var val = $select.attr('data-value') || '';
+        val = val.split(/,/).map(function(val){ return val.replace(/^\s+/, '').replace(/\s+$/, '');}).filter(function(val){ return val.length; });
 
         var select2 = {
             width: '100%',
@@ -133,7 +91,7 @@ jQuery(function($){
                 url: autocomplete,
                 dataType: 'json',
                 data: createOptionsSelect2,
-                results: function(data,page) {
+                processResults: function(data) {
                     if(savedTerm!==undefined) {
                         data = filterData(data, savedTerm, addNew);
                         savedTerm = undefined;
@@ -148,14 +106,14 @@ jQuery(function($){
                     return {results: results};
                 }
             },
+            val: val,
+            data: val.map(function(val){ return {id:val, text:val}; })
         }
         if(multiple) {
-            select2.initSelection = initSelectionMultiple;
+            $select.attr('multiple', true);
             select2.multiple = multiple;
-            select2.tags = [];
             select2.tokenSeparators = [","];
         } else {
-            select2.initSelection = initSelectionSingle;
             select2.allowClear = true;
             select2.placeholder = ' ';
         }
@@ -168,14 +126,15 @@ jQuery(function($){
     };
     var getInputForCloud = function($cloud) {
         var target = getClass($cloud.attr('class'));
-        return $("input[name='"+target+"']");
+        return $("select[name='"+target+"']");
     };
     var markTagCloud = function($clouds) {
         $clouds.each(function() {
             var $cloud = $(this);
             var $input = getInputForCloud($cloud);
             if(!$input.length) return;
-            var values = $input.select2('val');
+            var values = $input.val();
+            if(values === null || values == undefined) return;
             if(typeof values === 'string') {
                 values = new Array(values);
             }
@@ -194,14 +153,25 @@ jQuery(function($){
         var $this = $(this);
         var $input = getInputForCloud($this.closest('div.tagCloud'));
         var text = $this.text().replace(/\.\.\.$/,'');
+        var selection = [text];
         if($input.hasClass('MetaFacet_select2')) {
-            if(!$input.hasClass('singlevalue')) {
-                text = $input.select2('val').concat(text);
+            if($input.prop('multiple')) {
+                var val = $input.val();
+                if(val) selection = selection.concat(val);
             }
-            $input.select2('val', text).change();
-            return;
+            select($input, selection);
+            return false;
         }
         $input.val(text).change();
+    };
+    var select = function($select, selection) {
+        var i;
+        for(i = 0; i < selection.length; i++) {
+            if(!$select.find('option[value="' + selection[i].replace(/"/g, '\\"') + '"]').length) {
+                $select.append($('<option></option>').val(selection[i]).text(selection[i]));
+            }
+        }
+        $select.val(selection).change();
     };
     var showCloud = function($facetDiv){
         if(!$facetDiv.hasClass('tgInited')) {
@@ -217,16 +187,19 @@ jQuery(function($){
             $('.lrFacets span.item.selected').removeClass('selected');
             markTagCloud($('.lrFacets .lrFacet_' + $this.attr('name')));
         } else {
-            var $orig = $this.closest('form');
-            var $ajaxForm = $orig.clone();
-            var formtopic = encodeURIComponent($this.attr('data-form'));
-            var targetweb = encodeURIComponent($this.attr('data-web'));
-            $ajaxForm.attr('action', tagcloud);
-            $ajaxForm.append('<input type="text" name="formtopic" value="'+formtopic+'" />');
-            $ajaxForm.append('<input type="text" name="targetweb" value="'+targetweb+'" />');
+            var options = {
+                formtopic: $this.attr('data-form'),
+                targetweb: $this.attr('data-web')
+            };
+
+            var $form = $this.closest('form');
+            extendOptions(options, $form);
+
             $('.lrFacets>div').html("<img src='"+foswiki.getPreference('PUBURLPATH')+'/'+foswiki.getPreference('SYSTEMWEB')+"/JQueryPlugin/images/spinner.gif' />");
-            $ajaxForm.ajaxSubmit({
+            $.ajax({
+                url: tagcloud,
                 cache: false,
+                data:options,
                 success: function(data) {
                     var visible=$(".lrFacets>div:visible").first().attr('class');
                     visible = getClass(visible);
@@ -239,13 +212,8 @@ jQuery(function($){
 
         return true;
     };
-    $("input.MetaFacet_select2").livequery(function(){
+    $("select.MetaFacet_select2").livequery(function(){
         var $this = $(this);
-
-        // we need to make sure, there are no spaces in front of an item (or select2 won't be able to remove it)
-        var val = $this.val();
-        var unspaced = val.replace(/ *, */g, ',').replace(/^ +/, '').replace(/ +$/, '');
-        if(unspaced !== val) $this.val(unspaced);
 
         var options = $this.metadata();
         var id = $this.attr('id');
@@ -257,10 +225,15 @@ jQuery(function($){
         var search = $this.hasClass('search')?('field_' + $this.attr('name') + ($this.hasClass('lst')?'_lst_msearch':'_search')):field;
         var formtopic = $this.attr('data-form');
         var targetweb = $this.attr('data-web');
-        $this.select2(createSelect2Object($this, field, search, formtopic, targetweb)).on('change', change).addClass('autoclose').attr('inputid', id);
+        if(!$this.prop('multiple') && !$this.find('option[value=""]').length) {
+            $this.prepend('<option></option>');
+        }
+        var s2Options = createSelect2Object($this, field, search, formtopic, targetweb);
+        var s2 = $this.select2(s2Options);
+        select($this, s2Options.val);
+        $this.on('select2:opening', focus).on('select2:closed', closed).change(change);
     });
-    $("input.select2-input:not(.MetaFacetBound)").livequery(function(){$(this).addClass('MetaFacetBound').focus(focus)});
-    $("input[name='q']").focus(focus).each(function(){
+    $("input[name='q']").each(function(){
         var $input = $(this);
         var formtopic = $input.attr('data-form');
         var targetweb = $input.attr('data-web');
@@ -278,14 +251,7 @@ jQuery(function($){
                 };
 
                 var $form = $input.closest('form');
-                $form.find('input').each(function() { // XXX do proper serialize
-                    var $this = $(this);
-                    var val = $this.val();
-                    var name = $this.attr('name');
-                    if(val && name) {
-                        options[name] = val;
-                    }
-                });
+                extendOptions(options, $form);
                 $.ajax({
                     url: autocomplete,
                     dataType: 'json',
@@ -299,4 +265,13 @@ jQuery(function($){
     }).change(change);
 });
 
-
+var extendOptions = function(options, $form) {
+    $form.find('input,select').each(function() {
+        var $this = $(this);
+        var val = $this.val();
+        var name = $this.attr('name');
+        if(val && name) {
+            options[name] = val;
+        }
+    });
+};

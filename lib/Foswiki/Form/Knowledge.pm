@@ -6,7 +6,12 @@ use warnings;
 
 use Foswiki::Form::ListFieldDefinition ();
 use Foswiki::Plugins ();
+
+use HTML::Entities;
+
 our @ISA = ('Foswiki::Form::ListFieldDefinition');
+
+our $unsafe_chars = "<&>'\"";
 
 sub new {
     my $class = shift;
@@ -40,6 +45,7 @@ sub getSelect2Input {
 
     my $lst = ( $this->isMultiValued() ? ' lst' : '');
     my $formname = $this->{web} .'.'. $this->{topic};
+    $value = encode_entities($value, $unsafe_chars);
 
     Foswiki::Func::addToZone('script', 'KnowledgeScript', <<SCRIPT, 'JQUERYPLUGIN::FOSWIKI');
 <script type="text/javascript" src="%PUBURLPATH%/%SYSTEMWEB%/KnowledgeFormPlugin/Knowledge.js"></script>
@@ -49,7 +55,7 @@ SCRIPT
 CSS
 
     # XXX data-web
-    return "<input class='MetaFacet_select2 search$lst' type='hidden' data-web='$this->{web}' data-form='$formname' name='$this->{name}' value='$value' />"
+    return "<select class='MetaFacet_select2 search$lst foswikiHidden' data-web='$this->{web}' data-form='$formname' name='$this->{name}' data-value='$value'></select>"
 }
 
 sub renderForDisplay {
@@ -79,6 +85,7 @@ sub renderForEdit {
     my $formname = $this->{web} .'.'. $this->{topic};
 
     my $lst = ($this->isMultiValued() ? ' lst' : '');
+    $value = encode_entities($value, $unsafe_chars);
 
     Foswiki::Func::addToZone('script', 'KnowledgeScript', <<SCRIPT, 'JQUERYPLUGIN::FOSWIKI');
 <script type="text/javascript" src="%PUBURLPATH%/%SYSTEMWEB%/KnowledgeFormPlugin/Knowledge.js"></script>
@@ -89,7 +96,7 @@ CSS
 
     return (
         '',
-        "<input class='MetaFacet_select2$lst search addNew doNotFilter' type='hidden' name='$this->{name}' data-form='$formname' data-web='$targetWeb' value='$value' />"
+        "<select class='MetaFacet_select2$lst search addNew doNotFilter foswikiHidden' name='$this->{name}' data-form='$formname' data-web='$targetWeb' data-value='$value' ></select>"
     );
 }
 
