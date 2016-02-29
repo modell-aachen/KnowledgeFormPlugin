@@ -1,2 +1,2 @@
 Foswiki::Plugins::SolrPlugin,>=1.0,perl,Required.
-
+Foswiki::Plugins::TagCloudPlugin,>=1.0,perl,Required.
