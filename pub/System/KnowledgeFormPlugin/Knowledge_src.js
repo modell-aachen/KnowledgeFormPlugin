@@ -269,6 +269,7 @@ var extendOptions = function(options, $form) {
     $form.find('input,select').each(function() {
         var $this = $(this);
         var val = $this.val();
+        if(val && val.join) val = val.join(',');
         var name = $this.attr('name');
         if(val && name) {
             options[name] = val;
