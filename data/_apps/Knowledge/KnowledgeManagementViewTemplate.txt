@@ -1,0 +1,37 @@
+%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1435233013" format="1.1" reprev="1" version="1"}%
+%TMPL:INCLUDE{"view"}%
+
+%TMPL:DEF{"top_head"}%<!-- top_head -->
+<table class="modacHeaderTable" border="1" style="width: 100%;"><tbody>
+<tr>
+  <td style="width:10%;white-space:nowrap">%MAKETEXT{"Title"}%</td>
+  <td style="width:90%"><strong><font size="3">%TOPICTITLE%</font></strong></td>
+</tr>
+<tr>
+  <td style="width:10%;white-space:nowrap">%MAKETEXT{"Creator"}%</td>
+  <td>%WORKFLOWMETA{"LASTPROCESSOR_DISCUSSION" or="LASTPROCESSOR_DRAFT"}%</td>
+</tr>
+<tr>
+  <td style="width:10%;white-space:nowrap">%MAKETEXT{"Creation date"}%</td>
+  <td>%WORKFLOWMETA{"LASTTIME_DISCUSSION" or="LASTTIME_DRAFT"}%</td>
+</tr>
+</tbody></table>
+
+<div class="patternBorder">
+%TWISTY{
+  id="history"
+  firststart="open"
+  remember="on"
+  noscript="show"
+  showlink="%MAKETEXT{"History"}%"
+  hidelink="%MAKETEXT{"History"}%"
+  showimgleft="%ICONURLPATH{arrow-right}%"
+  hideimgleft="%ICONURLPATH{arrow-down}%"
+  linkclass="patternTwistyButton"
+}%<!-- TWISTY /-->
+<table class="tablesorter">
+  <thead><th>%MAKETEXT{"Creator"}%</th><th>%MAKETEXT{"Revision"}%</th><th>%MAKETEXT{"Date"}%</th></thead>
+  <tbody>%HISTORY{"<tr><td>$wikiname</td><td>$rev</td><td>$date</td></tr>"}%</tbody>
+</table>
+%ENDTWISTY%</div>
+<!-- /top_head -->%TMPL:END%

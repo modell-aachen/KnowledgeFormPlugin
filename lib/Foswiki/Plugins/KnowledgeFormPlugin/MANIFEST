@@ -1,8 +1,26 @@
-data/System/KnowledgeFormPlugin.txt
-data/System/VarKNOWLEDGECLOUD.txt
-data/System/VarKNOWLEDGESOLR.txt
-lib/Foswiki/Form/Knowledge.pm
-lib/Foswiki/Plugins/KnowledgeFormPlugin.pm
-lib/Foswiki/Plugins/KnowledgeFormPlugin/Config.spec
-pub/System/KnowledgeFormPlugin/Knowledge.css
-pub/System/KnowledgeFormPlugin/Knowledge.js
+data/System/KnowledgeFormPlugin.txt 0644
+data/System/VarKNOWLEDGECLOUD.txt 0644
+data/System/VarKNOWLEDGESOLR.txt 0644
+data/_apps/Knowledge/KnowledgeManagementEditTemplate.txt 0644
+data/_apps/Knowledge/KnowledgeManagementForm.txt 0644
+data/_apps/Knowledge/KnowledgeManagementTemplate.txt 0644
+data/_apps/Knowledge/KnowledgeManagementViewTemplate.txt 0644
+data/_apps/Knowledge/KnowledgeSearchViewTemplate.txt 0644
+data/_apps/Knowledge/WebAtom.txt 0644
+data/_apps/Knowledge/WebChanges.txt 0644
+data/_apps/Knowledge/WebContentTemplates.txt 0644
+data/_apps/Knowledge/WebCreateNewTopic.txt 0644
+data/_apps/Knowledge/WebHome.txt 0644
+data/_apps/Knowledge/WebIndex.txt 0644
+data/_apps/Knowledge/WebNotify.txt 0644
+data/_apps/Knowledge/WebPreferences.txt 0644
+data/_apps/Knowledge/WebRss.txt 0644
+data/_apps/Knowledge/WebSearch.txt 0644
+data/_apps/Knowledge/WebSearchAdvanced.txt 0644
+data/_apps/Knowledge/WebTopicList.txt 0644
+lib/Foswiki/Form/Knowledge.pm 0644
+lib/Foswiki/Plugins/KnowledgeFormPlugin.pm 0644
+lib/Foswiki/Plugins/KnowledgeFormPlugin/Config.spec 0644
+locale/KnowledgeFormPlugin/de.po 0644
+pub/System/KnowledgeFormPlugin/Knowledge.css 0644
+pub/System/KnowledgeFormPlugin/Knowledge.js 0644

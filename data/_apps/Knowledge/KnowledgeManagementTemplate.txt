@@ -1,0 +1,11 @@
+%META:TOPICINFO{author="BaseUserMapping_333" comment="" date="1447408314" format="1.1" version="2"}%
+
+
+%META:FORM{name="KnowledgeManagementForm"}%
+%META:FIELD{name="TopicTitle" title="TopicTitle" value="jhv"}%
+%META:FIELD{name="Creator" title="Creator" value=""}%
+%META:FIELD{name="Customer" title="Customer" value=""}%
+%META:FIELD{name="ManufacturingProcess" title="ManufacturingProcess" value=""}%
+%META:FIELD{name="ConstructionElement" title="ConstructionElement" value="Schweißen,Verzinken,Wärme behandeln, Wärme behandeln"}%
+%META:FIELD{name="Construction" title="Construction" value=""}%
+%META:FIELD{name="ContractDesign" title="ContractDesign" value=""}%

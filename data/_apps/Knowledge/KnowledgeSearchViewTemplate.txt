@@ -1,0 +1,47 @@
+%META:TOPICINFO{author="BaseUserMapping_333" comment="reprev" date="1448033720" format="1.1" reprev="2" version="32"}%
+%TMPL:INCLUDE{"SystemView"}%
+
+%{<verbatim class="tml">}%
+%TMPL:DEF{"script:skinbase"}%%TMPL:PREV%%JQREQUIRE{"ui::autocomplete,textboxlist,form,livequery,select2"}%%TMPL:END%
+%{</verbatim>}%
+
+%{<verbatim class="tml">}%
+%TMPL:DEF{"content"}%<!-- content -->
+<div class="widgetBlockTitle">%MAKETEXT{"Search"}%</div>
+<div class="widgetBlockContent">
+<form action="%SCRIPTURL{view}%/%BASEWEB%/%BASETOPIC%">
+<table><tbody><tr>
+<td><table>
+<tr><td style="width:200px"><label for="q">%MAKETEXT{"Fulltext search"}%</td><td>:</td><td style="width:300px;"><input type="text" name="q" value="%URLPARAM{"q" encode="save"}%" data-form="%WEB%.KnowledgeManagementForm" data-web="%WEB%" /></td></tr>
+<tr><td>%MAKETEXT{"Creator"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="Creator" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Customer"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="Customer" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Manufacturing process"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="ManufacturingProcess" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Construction element"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="ConstructionElement" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Construction"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="Construction" format="$select2"}%</td></tr>
+<tr><td>%MAKETEXT{"Contract design"}%</td><td>:</td><td>%RENDERFORDISPLAY{form="%WEB%.KnowledgeManagementForm" field="ContractDesign" format="$select2"}%</td></tr>
+<tr><td columnspan="2">%BUTTON{"%MAKETEXT{"Search!"}%" type="submit"}%</td></tr>
+</table></td>
+<td><div class="facetView" style="min-width: 300px;">
+%KNOWLEDGECLOUD{form="%WEB%.KnowledgeManagementForm"}%
+</div></td>
+</tr></tbody></table>
+<input type="hidden" name="doSearch" value="1" />
+</form>
+
+%IF{"$'URLPARAM{doSearch}'" then="$percentTMPL:P{ResultTable}$percent"}% 
+</div>
+<!-- /content -->%TMPL:END%
+%{</verbatim>}%
+
+%{<verbatim class="tml">}%
+%TMPL:DEF{"ResultTable"}%%SOLRSEARCH{"web:%WEB% type:topic form:(%WEB%.KnowledgeManagementForm OR KnowledgeManagementForm) %FORMATLIST{
+ "%URLPARAM{"q" encode="save"}%"
+ separator=" AND "
+ header="catchall:("
+ footer=")"
+}% %KNOWLEDGESOLR{form="%WEB%.KnowledgeManagementForm"}%"
+format="<tr><td>[[$web.$topic]]</td></tr>"
+header="<table class='tablesorter'><thead><tr><th>%MAKETEXT{"Topic"}%</th></tr></thead><tbody>"
+footer="</tbody></table>"
+}%%TMPL:END%
+%{</verbatim>}%
