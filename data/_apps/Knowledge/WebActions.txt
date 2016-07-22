@@ -1,0 +1,2 @@
+   * <a href="%SCRIPTURLPATH{"edit"}%/%BASEWEB%/KnowledgeAUTOINC0000?topicparent=WebHome;templatetopic=KnowledgeManagementTemplate;template=KnowledgeManagementEdit;formtemplate=KnowledgeManagementForm;t=%GMTIME{"$epoch"}%">%MAKETEXT{"Create new knowledge"}%</a>
+
