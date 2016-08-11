@@ -32,10 +32,10 @@ sub isValueMapped { return 0; }
 sub getDefaultValue {
     my $this = shift;
 
+    # note: we need to support multiple url-params
+    # eg. http://...?x=1&x=2 instead of http://...?x=1,2
     my $query = Foswiki::Func::getRequestObject();
-    my $value = $query->param($this->{name});
-
-    $value = '' unless defined $value;    # allow 0 values
+    my $value = join(',', $query->multi_param($this->{name}));
 
     return $value;
 }
