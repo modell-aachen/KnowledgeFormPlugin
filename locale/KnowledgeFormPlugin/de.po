@@ -38,3 +38,9 @@ msgstr "Auslegung"
 
 msgid "Contract design"
 msgstr "Vertragsgestaltung"
+
+msgid "Mandatory group fields are not defined"
+msgstr "Pflichtfeldergruppen müssen mindestens einen Wert enthalten"
+
+msgid "Please specify a value for one of the following fields: %1"
+msgstr "Geben Sie bitte mindestens ein Wert für die folgenden Felder an: %1"

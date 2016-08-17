@@ -24,3 +24,5 @@ lib/Foswiki/Plugins/KnowledgeFormPlugin/Config.spec 0644
 locale/KnowledgeFormPlugin/de.po 0644
 pub/System/KnowledgeFormPlugin/Knowledge.css 0644
 pub/System/KnowledgeFormPlugin/Knowledge.js 0644
+pub/System/KnowledgeFormPlugin/jsi18n.alert.de.js 0644
+pub/System/KnowledgeFormPlugin/jsi18n.alert.de.js.gz 0644

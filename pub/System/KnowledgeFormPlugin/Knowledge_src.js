@@ -212,6 +212,52 @@ jQuery(function($){
 
         return true;
     };
+    var mandatoryGroupCheckAdded;
+    var addMandatoryGroupCheck = function($select) {
+        if (mandatoryGroupCheckAdded) return;
+        mandatoryGroupCheckAdded = true;
+        $($select).closest('form').submit(function(event) {
+            event.preventDefault();
+            var mandatory = $("[data-group][data-group!='']");
+            // find all mandatory groups
+            var groups = [];
+            $.each(mandatory, function(i, field){
+                var groupName = ''+$(field).attr("data-group");
+                if(groups.indexOf(groupName) == -1) {
+                    groups.push( groupName );
+                }
+            });
+            // check if each group is filled out
+            var isFilledOut = true;
+            $.each(groups, function(i, group){
+                var isGroupFilledOut = false;
+                var groupFields = $("[data-group='"+ group +"']");
+                var fields = []
+                $.each(groupFields, function(i, field){
+                    if($(field).val()) {
+                        isGroupFilledOut = true;
+                        return false;
+                    }
+                    var $form = $(field).closest('tr.modacForm');
+                    fields.push($form.find('span.title').text());
+                });
+                if(!isGroupFilledOut) {
+                    var alerts = [];
+                    alerts.push(jsi18n.get('alert',"You have not filled out on of the mandatory fields: '[_1]'.", fields.join(", ")));
+                    alerts.push(jsi18n.get('edit',"Please check your input."));
+                    alert(alerts.join("\n"));
+                    isFilledOut = false;
+                    $.unblockUI();
+                    return false;
+                }
+            });
+            //submit form when mandatory groups filled out
+            if(isFilledOut) {
+                $(this).off('submit').trigger('submit');
+            }
+            return true;
+        });
+    };
     $("select.MetaFacet_select2").livequery(function(){
         var $this = $(this);
 
@@ -229,6 +275,10 @@ jQuery(function($){
             $this.prepend('<option></option>');
         }
         var s2Options = createSelect2Object($this, field, search, formtopic, targetweb);
+        var mandatoryGroup = $this.attr('data-group');
+        if(mandatoryGroup){
+            addMandatoryGroupCheck($this);
+        }
         var s2 = $this.select2(s2Options);
         select($this, s2Options.val);
         $this.on('select2:opening', focus).on('select2:closed', closed).change(change);

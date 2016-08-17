@@ -27,6 +27,30 @@ sub finish {
     $this->SUPER::finish();
 }
 
+sub param {
+  my ($this, $key) = @_;
+
+  unless (defined $this->{_params}) {
+    my ($web, $topic) = @{$this}{'web', 'topic'};
+    my $form = Foswiki::Form->new($Foswiki::Plugins::SESSION, $web, $topic);
+    my %params = Foswiki::Func::extractParameters($form->expandMacros($this->{attributes}));
+    $this->{_params} = \%params;
+
+    $form->getPreference('dummy'); # make sure it's cached
+    for my $key ($form->{_preferences}->prefs) {
+        next unless $key =~ /^\Q$this->{name}\E_s2_(\w+)$/;
+        $this->{_params}{$1} = $form->expandMacros($form->getPreference($key));
+    }
+  }
+
+  if (defined $key) {
+    my $res = $this->{_params}{$key};
+    $res = $this->{_defaultsettings}{$key} unless defined $res;
+    return $res;
+  }
+  return $this->{_params};
+}
+
 sub isValueMapped { return 0; }
 
 sub getDefaultValue {
@@ -56,6 +80,35 @@ CSS
 
     # XXX data-web
     return "<select class='MetaFacet_select2 search$lst foswikiHidden' data-web='$this->{web}' data-form='$formname' name='$this->{name}' data-value='$value'></select>"
+}
+
+sub beforeSaveHandler {
+    my ($this, $meta, $form) = @_;
+
+    my $group = $this->param('mandatoryGroup');
+    return unless defined $group;
+    my $request = $this->{session}{request};
+    my $fields = $form->getFields();
+    my @groupFields = ();
+    for my $field (@$fields) {
+        if($field->{attributes} =~ /mandatoryGroup="\Q$group\E"/) {
+            my $metaField = $meta->get('FIELD', $field->{name});
+            if ($metaField && $metaField->{value} ne '') {
+                return;
+            }
+            push @groupFields, $field->{name};
+        }
+    }
+
+    return unless @groupFields;
+    my $title = Foswiki::Func::expandCommonVariables('%MAKETEXT{"Mandatory group fields are not defined"}%');
+    my $body = Foswiki::Func::expandCommonVariables('%MAKETEXT{"Please specify a value for one of the following fields: [_1]" arg1="' . join(',', @groupFields) .'"}%');
+    throw Foswiki::OopsException(
+        'oopsgeneric',
+        web   => $meta->{web},
+        topic => $meta->{topic},
+        params => [ $title, $body]
+    );
 }
 
 sub renderForDisplay {
@@ -93,10 +146,15 @@ SCRIPT
     Foswiki::Func::addToZone('head', 'KnowledgeCSS', <<CSS);
 <style type="text/css" media="all">\@import url("%PUBURLPATH%/%SYSTEMWEB%/KnowledgeFormPlugin/Knowledge.css")</style>
 CSS
+    Foswiki::Plugins::JSi18nPlugin::JSI18N($Foswiki::Plugins::SESSION, 'KnowledgeFormPlugin', 'alert');
 
+    my $mandatoryGroup = '';
+    if($this->param('mandatoryGroup')){
+        $mandatoryGroup = $this->param('mandatoryGroup');
+    }
     return (
         '',
-        "<select class='MetaFacet_select2$lst search addNew doNotFilter foswikiHidden' name='$this->{name}' data-form='$formname' data-web='$targetWeb' data-value='$value' ></select>"
+        "<select class='MetaFacet_select2$lst search addNew doNotFilter foswikiHidden' name='$this->{name}' data-form='$formname' data-web='$targetWeb' data-value='$value' data-group='$mandatoryGroup' ></select>"
     );
 }
 
