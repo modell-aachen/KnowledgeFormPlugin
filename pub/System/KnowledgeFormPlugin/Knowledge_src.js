@@ -212,8 +212,9 @@ jQuery(function($){
 
         return true;
     };
-    mandatoryGroupCheck = function(mandatory) {
+    mandatoryGroupCheck = function() {
         // find all mandatory groups
+        var mandatory = $("[data-group][data-group!='']");
         var alerts = [];
         var groups = [];
         $.each(mandatory, function(i, field){
@@ -242,9 +243,9 @@ jQuery(function($){
             }
         });
         if (alerts.length) {
-            return alerts.join("\n");
+            return alerts;
         } else {
-            return '';
+            return;
         }
     };
     $("select.MetaFacet_select2").livequery(function(){
@@ -298,7 +299,9 @@ jQuery(function($){
             }
         });
     }).change(change);
+    foswiki.ModacSkin.registerMandatoryChecker(mandatoryGroupCheck);
 });
+
 
 var extendOptions = function(options, $form) {
     $form.find('input,select').each(function() {

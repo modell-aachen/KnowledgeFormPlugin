@@ -35,12 +35,6 @@ sub param {
     my $form = Foswiki::Form->new($Foswiki::Plugins::SESSION, $web, $topic);
     my %params = Foswiki::Func::extractParameters($form->expandMacros($this->{attributes}));
     $this->{_params} = \%params;
-
-    $form->getPreference('dummy'); # make sure it's cached
-    for my $key ($form->{_preferences}->prefs) {
-        next unless $key =~ /^\Q$this->{name}\E_s2_(\w+)$/;
-        $this->{_params}{$1} = $form->expandMacros($form->getPreference($key));
-    }
   }
 
   if (defined $key) {
@@ -91,7 +85,7 @@ sub beforeSaveHandler {
     my $fields = $form->getFields();
     my @groupFields = ();
     for my $field (@$fields) {
-        if($field->{attributes} =~ /mandatoryGroup="\Q$group\E"/) {
+        if($field->{attributes} =~ /mandatoryGroup=["']\Q$group\E["']/) {
             my $metaField = $meta->get('FIELD', $field->{name});
             if ($metaField && $metaField->{value} ne '') {
                 return;
@@ -140,7 +134,7 @@ sub renderForEdit {
     my $lst = ($this->isMultiValued() ? ' lst' : '');
     $value = encode_entities($value, $unsafe_chars);
 
-    Foswiki::Func::addToZone('script', 'KnowledgeScript', <<SCRIPT, 'JQUERYPLUGIN::FOSWIKI');
+    Foswiki::Func::addToZone('script', 'KnowledgeScript', <<SCRIPT, 'JQUERYPLUGIN::FOSWIKI,ModacSkin/modac');
 <script type="text/javascript" src="%PUBURLPATH%/%SYSTEMWEB%/KnowledgeFormPlugin/Knowledge.js"></script>
 SCRIPT
     Foswiki::Func::addToZone('head', 'KnowledgeCSS', <<CSS);
