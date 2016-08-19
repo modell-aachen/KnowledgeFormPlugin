@@ -8,6 +8,7 @@
 ---++ Usage
 
 This plugin provides a formfield type called =knowledge= and also =knowldege+multi=.
+In the form you can specify an =mandatoryGroup= attribute, so that the form can only be saved when on of the fields with the same mandatoryGroup is filled out.
 
 Put the =%%NOP%KNOWLEDGECLOUD%= macro into your edit-template.
 
@@ -21,8 +22,8 @@ If you are creating a search page, use =%%NOP%RENDERFOREDIT{form="YourForm" fiel
 | TopicTitle | text | 50 | | %MAKETEXT{"Please specify a distinct topic title"}% | M |
 | Creator | knowledge | 50 | | %MAKETEXT{"Creator"}% | |
 | Customer | knowledge | 50 |  | %MAKETEXT{"Customer"}% | |
-| ManufacturingProcess | knowledge+multi | 50 |  | %MAKETEXT{"Manufacturing process"}% | |
-| Construction | knowledge+multi | 50 |  | %MAKETEXT{"Construction"}% | |
+| ManufacturingProcess | knowledge+multi | 50 |  | %MAKETEXT{"Manufacturing process"}% | mandatoryGroup='group1' |
+| Construction | knowledge+multi | 50 |  | %MAKETEXT{"Construction"}% | mandatoryGroup='group1' |
 </verbatim>
 
 ---++++ !KnowledgeEditTemplate

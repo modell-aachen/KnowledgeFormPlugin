@@ -212,6 +212,42 @@ jQuery(function($){
 
         return true;
     };
+    mandatoryGroupCheck = function() {
+        // find all mandatory groups
+        var mandatory = $("[data-group][data-group!='']");
+        var alerts = [];
+        var groups = [];
+        $.each(mandatory, function(i, field){
+            var groupName = ''+$(field).attr("data-group");
+            if(groups.indexOf(groupName) == -1) {
+                groups.push( groupName );
+            }
+        });
+        // check if each group is filled out
+        var isFilledOut = true;
+        $.each(groups, function(i, group){
+            var isGroupFilledOut = false;
+            var groupFields = $("[data-group='"+ group +"']");
+            var fields = []
+                $.each(groupFields, function(i, field){
+                    if($(field).val()) {
+                        isGroupFilledOut = true;
+                        return false;
+                    }
+                    var $form = $(field).closest('tr.modacForm');
+                    fields.push($form.find('span.title').text());
+                });
+            if(!isGroupFilledOut) {
+                alerts.push(jsi18n.get('alert',"You have not filled out on of the mandatory fields: '[_1]'.", fields.join(", ")));
+                isFilledOut = false;
+            }
+        });
+        if (alerts.length) {
+            return alerts;
+        } else {
+            return;
+        }
+    };
     $("select.MetaFacet_select2").livequery(function(){
         var $this = $(this);
 
@@ -263,7 +299,9 @@ jQuery(function($){
             }
         });
     }).change(change);
+    foswiki.ModacSkin.registerMandatoryChecker(mandatoryGroupCheck);
 });
+
 
 var extendOptions = function(options, $form) {
     $form.find('input,select').each(function() {
