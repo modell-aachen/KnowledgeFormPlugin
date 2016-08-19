@@ -113,6 +113,7 @@ jQuery(function($){
             $select.attr('multiple', true);
             select2.multiple = multiple;
             select2.tokenSeparators = [","];
+            $('<input type="hidden" />').attr('name', $select.attr('name')).val('').appendTo($select); // make sure, we can clear all values
         } else {
             select2.allowClear = true;
             select2.placeholder = ' ';
@@ -228,15 +229,16 @@ jQuery(function($){
         $.each(groups, function(i, group){
             var isGroupFilledOut = false;
             var groupFields = $("[data-group='"+ group +"']");
-            var fields = []
-                $.each(groupFields, function(i, field){
-                    if($(field).val()) {
-                        isGroupFilledOut = true;
-                        return false;
-                    }
-                    var $form = $(field).closest('tr.modacForm');
-                    fields.push($form.find('span.title').text());
-                });
+            var fields = [];
+            $.each(groupFields, function(i, field){
+                var val = $(field).val();
+                if(!(val === null || (val.length === 1 && val[0] === '') || val === '')) {
+                    isGroupFilledOut = true;
+                    return false;
+                }
+                var $form = $(field).closest('tr.modacForm');
+                fields.push($form.find('span.title').text());
+            });
             if(!isGroupFilledOut) {
                 alerts.push(jsi18n.get('alert',"You have not filled out on of the mandatory fields: '[_1]'.", fields.join(", ")));
                 isFilledOut = false;
