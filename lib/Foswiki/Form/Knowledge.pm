@@ -65,7 +65,7 @@ sub getSelect2Input {
     my $formname = $this->{web} .'.'. $this->{topic};
     $value = encode_entities($value, $unsafe_chars);
 
-    Foswiki::Func::addToZone('script', 'KnowledgeScript', <<SCRIPT, 'JQUERYPLUGIN::FOSWIKI');
+    Foswiki::Func::addToZone('script', 'KnowledgeScript', <<SCRIPT, 'JQUERYPLUGIN::FOSWIKI,ModacSkin/modac');
 <script type="text/javascript" src="%PUBURLPATH%/%SYSTEMWEB%/KnowledgeFormPlugin/Knowledge.js"></script>
 SCRIPT
     Foswiki::Func::addToZone('head', 'KnowledgeCSS', <<CSS);
